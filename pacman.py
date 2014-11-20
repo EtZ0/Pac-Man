@@ -47,33 +47,33 @@ def samm(pos,):
 def nool_üles(event):
     global pac_pos
     if not wall2(samm(pac_pos)[0]):
+        update_pac_dir(pac_north_img)
         tahvel.move(pac_id, 0, -sammu_pikkus)
-        update_img(pac_id, pac_north_img)
         pac_pos[1] -= sammu_pikkus
         print(pac_pos)
 
 def nool_alla(event):
     global pac_pos
     if not wall2(samm(pac_pos)[1]):
+        update_pac_dir(pac_south_img)
         tahvel.move(pac_id, 0, sammu_pikkus)
-        update_img(pac_id, pac_south_img)
         pac_pos[1] += sammu_pikkus
         print(pac_pos)
 
 def nool_vasakule(event):
     global pac_pos
     if not wall2(samm(pac_pos)[2]):
+        update_pac_dir(pac_west_img)
         tahvel.move(pac_id, -sammu_pikkus, 0)
-        update_img(pac_id, pac_west_img)
         pac_pos[0] -= sammu_pikkus
         print(pac_pos)
 
 def nool_paremale(event):
     global pac_pos
     if not wall2(samm(pac_pos)[3]):
+        update_pac_dir(pac_east_img)
         tahvel.move(pac_id, sammu_pikkus, 0)
         pac_pos[0] += sammu_pikkus
-        update_img(pac_id, pac_east_img)
         print(pac_pos)
 
 def wall(pos): # ei kasuta seda enam
@@ -88,8 +88,11 @@ def wall2(pos):
             return True
     return False
 
-def update_img(obj_id, new_img):
-    pass
+def update_pac_dir(new_img):
+    global pac_id
+    global pac_pos
+    tahvel.delete(pac_id)
+    pac_id = tahvel.create_image(pac_pos[0], pac_pos[1], image=new_img)
 
 #ruut 50px x 50 px, kus koordinaadid on ruudu keskpunktiks.
 #tipud on vastava ümbrisruudu tipud (nt pos 25x25 puhul 0x0, 0x50, 50x0, 50x50)
@@ -105,7 +108,7 @@ def tipud(pos):
     tipud.append([pos[0]-25, pos[1]])
     tipud.append([pos[0]+25, pos[1]])
     return tipud
-# change
+
 #kontrollib 2 objekti kokkupõrget
 #kontrollib kas ühe objekti mingi piirnurk asub teise objekti piirides
 def collision(pos_obj1, pos_obj2):
@@ -132,7 +135,6 @@ wall_id =[]
 for i in range(len(wall_pos)):
     wall_id.append(tahvel.create_image(wall_pos[i][0], wall_pos[i][1], image=wall_img))
 
-
 # seon nooleklahvid vastavate funktsioonidega
 raam.bind_all("<Up>",    nool_üles)
 raam.bind_all("<Down>",  nool_alla)
@@ -150,9 +152,6 @@ def liikumine(indeks):
         return [-sammu_pikkus,0]
     elif liigu[indeks] == 'paremale':
         return [+sammu_pikkus,0]
-
-
-
 
 def uuenda():
     global ghost_pos
