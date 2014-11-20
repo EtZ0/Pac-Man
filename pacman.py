@@ -1,10 +1,21 @@
 __author__ = 'Meelis Tapo'
+__author__ = 'Eduard'
+#TODO tondid parkinsonist terveks ravida/loogika (chaser, ambusher, fickle, stupid)
+#TODO tonte juurde
+#TODO kaardisüsteem ümber(50*50px ruudud? i*50-25), kaardid suuremaks ja juurde
+#TODO menüü taoline asjandus/hiscore/etc
+#TODO nupu allavajutamisel astub 1 sammu, siis jõnksatab korraks seisma, siis liigub sujuvalt edasi, wot?
+#TODO suu käima
+#TODO helid (kaustas olemas die.ogg, intro.ogg)
+#TODO pelletid/powerupid
+#TODO loogika eraldi faili?
+
 
 from tkinter import *
 import time
 import random
 
-sammu_pikkus = 50
+sammu_pikkus = 10
 alg_pos = [275,275]
 wall_pos = ([25,25], [25,75], [25,125], [25,175],[25,225], [25,275], [25,325], [25,375], [25,425], [25,475], [25,525],
             [525,25], [525,75], [525,125], [525,175],[525,225], [525,275], [525,325], [525,375], [525,425], [525,475], [525,525],
@@ -35,46 +46,85 @@ def samm(pos,):
 
 def nool_üles(event):
     global pac_pos
-    if wall(samm(pac_pos)[0]) != True:
+    if not wall2(samm(pac_pos)[0]):
         tahvel.move(pac_id, 0, -sammu_pikkus)
+        update_img(pac_id, pac_north_img)
         pac_pos[1] -= sammu_pikkus
         print(pac_pos)
 
 def nool_alla(event):
     global pac_pos
-    if wall(samm(pac_pos)[1]) != True:
+    if not wall2(samm(pac_pos)[1]):
         tahvel.move(pac_id, 0, sammu_pikkus)
+        update_img(pac_id, pac_south_img)
         pac_pos[1] += sammu_pikkus
         print(pac_pos)
 
 def nool_vasakule(event):
     global pac_pos
-    if wall(samm(pac_pos)[2]) != True:
+    if not wall2(samm(pac_pos)[2]):
         tahvel.move(pac_id, -sammu_pikkus, 0)
+        update_img(pac_id, pac_west_img)
         pac_pos[0] -= sammu_pikkus
         print(pac_pos)
 
 def nool_paremale(event):
     global pac_pos
-    if wall(samm(pac_pos)[3]) != True:
+    if not wall2(samm(pac_pos)[3]):
         tahvel.move(pac_id, sammu_pikkus, 0)
         pac_pos[0] += sammu_pikkus
+        update_img(pac_id, pac_east_img)
         print(pac_pos)
 
-def wall(pos):
+def wall(pos): # ei kasuta seda enam
     for i in range(len(wall_pos)):
         if wall_pos[i][0] == pos[0] and wall_pos[i][1] == pos[1]:
             return True
     return False
 
+def wall2(pos):
+    for wall_elem in wall_pos:
+        if collision(pos, wall_elem):
+            return True
+    return False
+
+def update_img(obj_id, new_img):
+    pass
+
+#ruut 50px x 50 px, kus koordinaadid on ruudu keskpunktiks.
+#tipud on vastava ümbrisruudu tipud (nt pos 25x25 puhul 0x0, 0x50, 50x0, 50x50)
+def tipud(pos):
+    tipud = []
+    tipud.append([pos[0]-25, pos[1]-25]) # Ül Vas
+    tipud.append([pos[0]-25, pos[1]+25]) # Al Vas
+    tipud.append([pos[0]+25, pos[1]-25]) # Ül Par
+    tipud.append([pos[0]+25, pos[1]+25]) # Al Par
+    #külgede keskpunktid
+    tipud.append([pos[0], pos[1]-25])
+    tipud.append([pos[0], pos[1]+25])
+    tipud.append([pos[0]-25, pos[1]])
+    tipud.append([pos[0]+25, pos[1]])
+    return tipud
+#kontrollib 2 objekti kokkupõrget
+#kontrollib kas ühe objekti mingi piirnurk asub teise objekti piirides
+def collision(pos_obj1, pos_obj2):
+    tipud_obj1 = tipud(pos_obj1)
+    for elem in tipud_obj1:
+        if elem[0] > pos_obj2[0]-25 and elem[0] < pos_obj2[0]+25:
+            if elem[1] > pos_obj2[1]-25 and elem[1] < pos_obj2[1]+25:
+                return True
+    #eraldi kontroll -OK, lisaks elemendi ümbrisnelinurga tippudele kontrollib ka külgede keskpunkte
 
 # tavaline pildi sisselugemine
-pac_img = PhotoImage(file="pac1.png")
-wall_img = PhotoImage(file="wall.png")
-ghost_img = PhotoImage(file="ghost.png")
+pac_east_img = PhotoImage(file="media/pac_e.png")
+pac_west_img = PhotoImage(file="media/pac_w.png")
+pac_north_img = PhotoImage(file="media/pac_n.png")
+pac_south_img = PhotoImage(file="media/pac_s.png")
+wall_img = PhotoImage(file="media/wall.png")
+ghost_img = PhotoImage(file="media/ghost.png")
 
 # pildi loomisel jätan meelde pildi id
-pac_id = tahvel.create_image(alg_pos[0], alg_pos[1], image=pac_img)
+pac_id = tahvel.create_image(alg_pos[0], alg_pos[1], image=pac_east_img)
 ghost_id = tahvel.create_image(ghost_pos[0], ghost_pos[1], image=ghost_img)
 
 wall_id =[]
@@ -105,16 +155,16 @@ def liikumine(indeks):
 
 def uuenda():
     global ghost_pos
-    print(ghost_pos)
+    #print(ghost_pos)
     indeks = random.randint(0,3)
     kuhu = liikumine(indeks)
-    if wall(samm(ghost_pos)[indeks]) != True:
+    if wall2(samm(ghost_pos)[indeks]) != True:
         ghost_pos[0] += kuhu[0]
         ghost_pos[1] += kuhu[1]
         tahvel.move(ghost_id,kuhu[0],kuhu[1])
 
-    # ootame 0,1 sekundit ja siis uuendame positsiooni
-    raam.after(10, uuenda)
+    # ootame 0,02 sekundit ja siis uuendame positsiooni
+    raam.after(20, uuenda)
 
 uuenda()
 
