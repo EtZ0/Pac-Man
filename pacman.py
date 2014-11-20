@@ -105,6 +105,7 @@ def tipud(pos):
     tipud.append([pos[0]-25, pos[1]])
     tipud.append([pos[0]+25, pos[1]])
     return tipud
+# change
 #kontrollib 2 objekti kokkupõrget
 #kontrollib kas ühe objekti mingi piirnurk asub teise objekti piirides
 def collision(pos_obj1, pos_obj2):
@@ -155,6 +156,9 @@ def liikumine(indeks):
 
 def uuenda():
     global ghost_pos
+    global pac_pos
+    global alg_pos
+    global pac_id
     #print(ghost_pos)
     indeks = random.randint(0,3)
     kuhu = liikumine(indeks)
@@ -162,6 +166,10 @@ def uuenda():
         ghost_pos[0] += kuhu[0]
         ghost_pos[1] += kuhu[1]
         tahvel.move(ghost_id,kuhu[0],kuhu[1])
+    if collision(ghost_pos, pac_pos):
+        tahvel.delete(pac_id)
+        pac_id = tahvel.create_image(alg_pos[0], alg_pos[1], image=pac_east_img)
+        pac_pos = [alg_pos[0], alg_pos[1]]
 
     # ootame 0,02 sekundit ja siis uuendame positsiooni
     raam.after(20, uuenda)
