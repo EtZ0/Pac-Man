@@ -1,4 +1,4 @@
-__author__ = 'Meelis Tapo'
+#__author__ = 'Meelis Tapo'
 __author__ = 'Eduard'
 #TODO tondid parkinsonist terveks ravida/loogika (chaser, ambusher, fickle, stupid)
 #TODO tonte juurde
